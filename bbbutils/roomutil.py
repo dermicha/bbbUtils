@@ -1,0 +1,39 @@
+import logging
+import uuid
+
+from bigbluebutton_api_python import BigBlueButton
+
+
+class RoomUtil:
+
+    logging.basicConfig(level=logging.INFO)
+
+    def __init__(self, bbbUrl, bbbSecret):
+        logging.info("setup BBB connection")
+        self.bbb = BigBlueButton(bbbUrl, bbbSecret)
+
+    def __existRoom(self, roomId):
+        try:
+            self.bbb.get_meeting_info(roomId)
+            return True
+        except:
+            return False
+
+    def getRoomUrl(self,  roomId, username = "user-{}".format(str(uuid.uuid4())), moderator = False):
+        logging.info("getRoomUrl with roomId: {}".format(roomId))
+        if not self.__existRoom(roomId):
+            attendeePW = str(uuid.uuid4())
+            moderatorPW = str(uuid.uuid4())
+            dict = {'attendeePW': attendeePW, 'moderatorPW': moderatorPW}
+            self.bbb.create_meeting(roomId, params=dict)
+        else:
+            meetingInfo = self.bbb.get_meeting_info(roomId).get_meetinginfo()
+            attendeePW = meetingInfo.get_attendeepw()
+            moderatorPW = meetingInfo.get_moderatorpw()
+
+        if(moderator):
+            userPw = moderatorPW
+        else:
+            userPw = attendeePW
+
+        return self.bbb.get_join_meeting_url(username, roomId, userPw)
