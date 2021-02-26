@@ -1,1 +1,2 @@
-bigbluebutton_api_python
+bigbluebutton_api_python==0.0.11
+requests==2.25.1

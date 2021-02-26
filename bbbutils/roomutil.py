@@ -4,9 +4,7 @@ import uuid
 
 from bigbluebutton_api_python import BigBlueButton
 
-
 class RoomUtil:
-    logging.basicConfig(level=logging.DEBUG)
 
     def __init__(self, bbbUrl, bbbSecret):
         logging.info("setup BBB connection")
@@ -20,14 +18,15 @@ class RoomUtil:
             return False
 
     def getRoomUrl(self, roomId, username="user-{}".format(str(uuid.uuid4())), moderator=False):
-        logging.info("getRoomUrl with roomId: {}".format(roomId))
+        # logging.info("getRoomUrl with roomId: {}".format(roomId))
         if not self.__existRoom(roomId):
             attendeePW = str(uuid.uuid4())
             moderatorPW = str(uuid.uuid4())
             dict = {'attendeePW': attendeePW, 'moderatorPW': moderatorPW}
             self.bbb.create_meeting(roomId, params=dict)
         else:
-            meetingInfo = self.bbb.get_meeting_info(roomId).get_meetinginfo()
+            meetingInfoR = self.bbb.get_meeting_info(roomId)
+            meetingInfo = meetingInfoR.get_meetinginfo()
             attendeePW = meetingInfo.get_attendeepw()
             moderatorPW = meetingInfo.get_moderatorpw()
 
